@@ -21,7 +21,7 @@
 
 ## **Live Demo**
 
-Play the game here: [Camera Clicker Simulator](https://Tauris-G.github.io/camera-clicker-simulator/)
+Play the game here: [Camera Clicker Simulator]([https://Tauris-G.github.io/camera-clicker-simulator/](https://tauris-g.github.io/index/))
 
 ## **Screenshots**
 
