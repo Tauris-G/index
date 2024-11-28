@@ -739,7 +739,7 @@
             nameP.textContent = item.name;
 
             const costP = document.createElement('p');
-            costP.innerHTML = `Cost: <span>${item.cost}</span> frames`;
+            costP.innerHTML = `Cost: <span>${item.cost.toLocaleString()}</span> frames`;
 
             const button = document.createElement('button');
             button.id = `buy${type}Button${item.id}`;
@@ -779,6 +779,9 @@
             upgrades.forEach(upgrade => {
                 createShopItem(upgrade, upgradeShop, 'Upgrade');
             });
+
+            // Re-initialize tooltips after adding new elements
+            initializeTooltips();
         }
 
         function buyCamera(id) {
@@ -795,6 +798,7 @@
                 showMessage(`You purchased the ${camera.name}!`);
                 if (soundEnabled) achievementSound.play();
                 checkAchievements();
+                initializeShop(); // Update the shop items
             } else if (camera.owned) {
                 showMessage('You already own this camera!');
             } else {
@@ -823,6 +827,7 @@
                 showMessage(`You purchased the ${upgrade.name}!`);
                 if (soundEnabled) achievementSound.play();
                 checkAchievements();
+                initializeShop(); // Update the shop items
             } else if (upgrade.owned) {
                 showMessage('You already own this upgrade!');
             } else {
@@ -843,7 +848,7 @@
         }
 
         function updateFrameCounter() {
-            frameCounter.textContent = 'Frames: ' + Math.floor(frames);
+            frameCounter.textContent = 'Frames: ' + frames.toLocaleString();
         }
 
         function gainXP(amount) {
@@ -859,13 +864,13 @@
             level++;
             levelCounter.textContent = 'Level: ' + level;
             xpToNextLevel = Math.floor(xpToNextLevel * 1.5);
-            xpToNextLevelSpan.textContent = xpToNextLevel;
+            xpToNextLevelSpan.textContent = xpToNextLevel.toLocaleString();
             showMessage('You leveled up to Level ' + level + '!');
             if (soundEnabled) achievementSound.play();
         }
 
         function updateXPBar() {
-            currentXPSpan.textContent = Math.floor(currentXP);
+            currentXPSpan.textContent = Math.floor(currentXP).toLocaleString();
             const percentage = (currentXP / xpToNextLevel) * 100;
             xpBar.style.width = percentage + '%';
         }
@@ -963,8 +968,8 @@
             xpToNextLevel = 100;
             framesPerSecond = 0;
             levelCounter.textContent = 'Level: ' + level;
-            xpToNextLevelSpan.textContent = xpToNextLevel;
-            currentXPSpan.textContent = currentXP;
+            xpToNextLevelSpan.textContent = xpToNextLevel.toLocaleString();
+            currentXPSpan.textContent = currentXP.toLocaleString();
             xpBar.style.width = '0%';
 
             if (autoClickInterval !== null) {
@@ -1121,11 +1126,34 @@
 
         function addToLeaderboard(name, frames) {
             let leaderboard = JSON.parse(localStorage.getItem('cameraClickerLeaderboard')) || [];
-            leaderboard.push({ name, frames });
-            // Sort descendingly
+
+            // Check if player already exists
+            const existingPlayerIndex = leaderboard.findIndex(entry => entry.name === name);
+            if (existingPlayerIndex !== -1) {
+                // Player exists, update score if new score is higher
+                if (frames > leaderboard[existingPlayerIndex].frames) {
+                    leaderboard[existingPlayerIndex].frames = frames;
+                    showMessage('Leaderboard updated with your new high score!');
+                } else {
+                    showMessage('Your score did not beat the existing leaderboard score.');
+                }
+            } else {
+                // Add new player
+                leaderboard.push({ name, frames });
+                showMessage('You have been added to the leaderboard!');
+            }
+
+            // Sort descendingly by frames
             leaderboard.sort((a, b) => b.frames - a.frames);
+
+            // Remove duplicates (if any) - this is precautionary
+            leaderboard = leaderboard.filter((entry, index, self) =>
+                index === self.findIndex(e => e.name === entry.name)
+            );
+
             // Keep top 10
             leaderboard = leaderboard.slice(0, 10);
+
             localStorage.setItem('cameraClickerLeaderboard', JSON.stringify(leaderboard));
         }
 
@@ -1139,7 +1167,7 @@
                 const nameTd = document.createElement('td');
                 nameTd.textContent = entry.name;
                 const framesTd = document.createElement('td');
-                framesTd.textContent = Math.floor(entry.frames);
+                framesTd.textContent = Math.floor(entry.frames).toLocaleString();
                 tr.appendChild(rankTd);
                 tr.appendChild(nameTd);
                 tr.appendChild(framesTd);
@@ -1217,6 +1245,7 @@
                 addCameraToCollection(infinityCamera);
                 showMessage('You have been awarded the Infinity Camera!');
                 if (soundEnabled) achievementSound.play();
+                initializeShop(); // Update the shop items
             }
         }
 
