@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Camera Clicker Simulator</title>
     <!-- Include Howler.js library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
-    <!-- Include Bootstrap CSS and JS for tooltips and navigation -->
+    <!-- Include Bootstrap CSS and JS for tooltips, modals, and navigation -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <!-- Include Google Font -->
@@ -382,6 +382,28 @@
         </div>
     </div>
 
+    <!-- Name Input Modal -->
+    <div class="modal fade" id="nameInputModal" tabindex="-1" aria-labelledby="nameInputModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="nameForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="nameInputModalLabel">Enter Your Name</h5>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="playerName" class="form-label">Name:</label>
+                <input type="text" class="form-control" id="playerName" required maxlength="20">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">Save Name</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <!-- Game Content -->
     <div id="gameContent" class="game-content">
         <div class="header">
@@ -539,6 +561,12 @@
         const loadGameButton = document.getElementById('loadGameButton');
         const leaderboardTableBody = document.getElementById('leaderboardTableBody');
         const navLinks = document.querySelectorAll('.nav-link');
+        const nameInputModal = new bootstrap.Modal(document.getElementById('nameInputModal'), {
+            backdrop: 'static',
+            keyboard: false
+        });
+        const nameForm = document.getElementById('nameForm');
+        const playerNameInput = document.getElementById('playerName');
 
         // Initialize Howler.js sounds with CORS-friendly online files
         const clickSound = new Howl({
@@ -575,6 +603,9 @@
         let clickTimestamps = []; // Array to store timestamps of clicks
         let isCheating = false; // Flag to indicate if cheating is detected
 
+        // Player Name Variable
+        let playerName = '';
+
         // Disable interactions before game starts
         disableGameInteractions();
 
@@ -607,6 +638,15 @@
             if (soundEnabled) {
                 backgroundMusic.play();
             }
+
+            // Check if player has a saved game with a name
+            const savedGame = JSON.parse(localStorage.getItem('cameraClickerSave'));
+            if (savedGame && savedGame.playerName) {
+                playerName = savedGame.playerName;
+            } else {
+                // Show name input modal
+                nameInputModal.show();
+            }
         }
 
         function disableGameInteractions() {
@@ -638,6 +678,7 @@
             updateAchievements();
             initializeTooltips();
             updateSoundToggle();
+            loadLeaderboard(); // Ensure leaderboard is up-to-date
         }
 
         cameraButton.addEventListener('click', () => {
@@ -983,7 +1024,7 @@
 
         // Settings button functionality (reset game)
         settingsButton.addEventListener('click', () => {
-            if (confirm('Do you want to reset the game?')) {
+            if (confirm('Do you want to reset the game? This will erase all your progress and leaderboard entry.')) {
                 resetGame();
                 // Return to main menu
                 gameContent.style.display = 'none';
@@ -1034,31 +1075,18 @@
 
             // Clear localStorage
             localStorage.removeItem('cameraClickerSave');
-            localStorage.removeItem('cameraClickerLeaderboard');
+            removeFromLeaderboard(playerName);
+            playerName = '';
             showMessage('Game Reset!');
         }
 
         // Save and Load Game Functions
         function saveGame() {
-            // Prompt for player name
-            let playerName = '';
-            if (!localStorage.getItem('cameraClickerSave')) {
-                playerName = prompt('Enter your name for the leaderboard:');
-                if (!playerName) {
-                    showMessage('Save cancelled: No name entered.');
-                    return;
-                }
-            } else {
-                // Retrieve existing player name if available
-                const savedGame = JSON.parse(localStorage.getItem('cameraClickerSave'));
-                playerName = savedGame.playerName || '';
-                if (!playerName) {
-                    playerName = prompt('Enter your name for the leaderboard:');
-                    if (!playerName) {
-                        showMessage('Save cancelled: No name entered.');
-                        return;
-                    }
-                }
+            // Ensure player has entered a name
+            if (!playerName) {
+                showMessage('Please enter your name before saving.');
+                nameInputModal.show();
+                return;
             }
 
             const gameState = {
@@ -1107,7 +1135,7 @@
                 currentXP = gameState.currentXP || 0;
                 xpToNextLevel = gameState.xpToNextLevel || 100;
                 soundEnabled = gameState.soundEnabled !== undefined ? gameState.soundEnabled : true;
-                const playerName = gameState.playerName || '';
+                playerName = gameState.playerName || '';
 
                 // Restore cameras
                 if (gameState.cameras) {
@@ -1193,6 +1221,14 @@
             leaderboard = leaderboard.slice(0, 10);
 
             localStorage.setItem('cameraClickerLeaderboard', JSON.stringify(leaderboard));
+            loadLeaderboard(); // Refresh the leaderboard display
+        }
+
+        function removeFromLeaderboard(name) {
+            let leaderboard = JSON.parse(localStorage.getItem('cameraClickerLeaderboard')) || [];
+            leaderboard = leaderboard.filter(entry => entry.name !== name);
+            localStorage.setItem('cameraClickerLeaderboard', JSON.stringify(leaderboard));
+            loadLeaderboard(); // Refresh the leaderboard display
         }
 
         function loadLeaderboard() {
@@ -1352,6 +1388,21 @@
                 }
             }
         }
+
+        // Handle Name Form Submission
+        nameForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const enteredName = playerNameInput.value.trim();
+            if (enteredName.length === 0) {
+                alert('Please enter a valid name.');
+                return;
+            }
+            playerName = enteredName;
+            nameInputModal.hide();
+
+            // Save the game, which will now include the player name
+            saveGame();
+        });
     </script>
 </body>
 </html>
