@@ -570,6 +570,11 @@
             }
         });
 
+        // Anti-Clicker Variables
+        const MAX_CLICKS_PER_SECOND = 20; // Threshold for maximum clicks per second
+        let clickTimestamps = []; // Array to store timestamps of clicks
+        let isCheating = false; // Flag to indicate if cheating is detected
+
         // Disable interactions before game starts
         disableGameInteractions();
 
@@ -637,6 +642,17 @@
 
         cameraButton.addEventListener('click', () => {
             if (!gameStarted) return;
+            const now = Date.now();
+            clickTimestamps.push(now);
+
+            // Remove clicks older than 1 second
+            clickTimestamps = clickTimestamps.filter(timestamp => now - timestamp <= 1000);
+
+            if (clickTimestamps.length > MAX_CLICKS_PER_SECOND) {
+                detectCheating();
+                return;
+            }
+
             const framesGained = framesPerClick * clickMultiplier;
             frames += framesGained;
             totalClicks++;
@@ -648,6 +664,28 @@
             updateProgress(framesGained);
             checkAchievements();
         });
+
+        // Function to handle cheating detection
+        function detectCheating() {
+            if (isCheating) return; // Prevent multiple detections
+
+            isCheating = true;
+            showMessage('Cheating detected! Your clicks have been limited.');
+            cameraButton.style.pointerEvents = 'none'; // Disable clicking
+
+            // Penalize the player (e.g., deduct frames)
+            const penaltyFrames = Math.floor(frames * 0.1); // Deduct 10% of current frames
+            frames = Math.max(frames - penaltyFrames, 0);
+            updateFrameCounter();
+
+            // Re-enable clicking after a cooldown period (e.g., 10 seconds)
+            setTimeout(() => {
+                isCheating = false;
+                clickTimestamps = []; // Reset click timestamps
+                showMessage('You can click again. Play fair!');
+                cameraButton.style.pointerEvents = 'auto';
+            }, 10000); // 10,000 milliseconds = 10 seconds
+        }
 
         // Camera data
         const cameras = [
