@@ -289,6 +289,31 @@
         @keyframes fadeInGame {
             to { opacity: 1; }
         }
+        /* Leaderboard Styles */
+        .leaderboard-section {
+            padding: 20px;
+        }
+        .leaderboard-section h2 {
+            color: #228B22;
+            text-shadow: 1px 1px 2px #000;
+            margin-bottom: 20px;
+        }
+        .leaderboard-table {
+            width: 90%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .leaderboard-table th, .leaderboard-table td {
+            text-align: center;
+            padding: 10px;
+        }
+        .leaderboard-table th {
+            background-color: #228B22;
+            color: white;
+        }
+        .leaderboard-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
         /* Responsive Styles */
         @media (min-width: 576px) {
             .header h1 {
@@ -341,6 +366,9 @@
             .achievement-item {
                 width: 220px;
             }
+            .leaderboard-table {
+                width: 80%;
+            }
         }
     </style>
 </head>
@@ -373,6 +401,10 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#" data-section="achievements">Achievements</a>
+            </li>
+            <!-- Leaderboard Tab -->
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-section="leaderboard">Leaderboard</a>
             </li>
         </ul>
 
@@ -435,6 +467,25 @@
             </div>
         </div>
 
+        <!-- Leaderboard Section -->
+        <div id="leaderboard" class="content-section">
+            <div class="leaderboard-section">
+                <h2>Leaderboard</h2>
+                <table class="table table-striped leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Name</th>
+                            <th>Frames</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardTableBody">
+                        <!-- Leaderboard entries will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <div class="footer">
             <p>© 2024 Camera Clicker Simulator</p>
         </div>
@@ -486,6 +537,8 @@
         const mainMenu = document.getElementById('mainMenu');
         const newGameButton = document.getElementById('newGameButton');
         const loadGameButton = document.getElementById('loadGameButton');
+        const leaderboardTableBody = document.getElementById('leaderboardTableBody');
+        const navLinks = document.querySelectorAll('.nav-link');
 
         // Initialize Howler.js sounds with CORS-friendly online files
         const clickSound = new Howl({
@@ -557,7 +610,7 @@
             settingsButton.style.pointerEvents = 'none';
             saveButton.style.pointerEvents = 'none';
             loadButton.style.pointerEvents = 'none';
-            document.querySelectorAll('.nav-link').forEach(link => {
+            navLinks.forEach(link => {
                 link.style.pointerEvents = 'none';
             });
         }
@@ -568,7 +621,7 @@
             settingsButton.style.pointerEvents = 'auto';
             saveButton.style.pointerEvents = 'auto';
             loadButton.style.pointerEvents = 'auto';
-            document.querySelectorAll('.nav-link').forEach(link => {
+            navLinks.forEach(link => {
                 link.style.pointerEvents = 'auto';
             });
         }
@@ -938,11 +991,33 @@
 
             // Clear localStorage
             localStorage.removeItem('cameraClickerSave');
+            localStorage.removeItem('cameraClickerLeaderboard');
             showMessage('Game Reset!');
         }
 
         // Save and Load Game Functions
         function saveGame() {
+            // Prompt for player name
+            let playerName = '';
+            if (!localStorage.getItem('cameraClickerSave')) {
+                playerName = prompt('Enter your name for the leaderboard:');
+                if (!playerName) {
+                    showMessage('Save cancelled: No name entered.');
+                    return;
+                }
+            } else {
+                // Retrieve existing player name if available
+                const savedGame = JSON.parse(localStorage.getItem('cameraClickerSave'));
+                playerName = savedGame.playerName || '';
+                if (!playerName) {
+                    playerName = prompt('Enter your name for the leaderboard:');
+                    if (!playerName) {
+                        showMessage('Save cancelled: No name entered.');
+                        return;
+                    }
+                }
+            }
+
             const gameState = {
                 frames,
                 framesPerClick,
@@ -958,10 +1033,19 @@
                 cameras: cameras.map(camera => ({ id: camera.id, owned: camera.owned })),
                 upgrades: upgrades.map(upgrade => ({ id: upgrade.id, owned: upgrade.owned })),
                 achievements: achievements.map(achievement => ({ id: achievement.id, achieved: achievement.achieved })),
-                soundEnabled
+                soundEnabled,
+                playerName
             };
             localStorage.setItem('cameraClickerSave', JSON.stringify(gameState));
             showMessage('Game Saved!');
+
+            // Add to leaderboard
+            if (playerName) {
+                addToLeaderboard(playerName, frames);
+            }
+
+            // Navigate to leaderboard
+            navigateToSection('leaderboard');
         }
 
         function loadGame() {
@@ -980,6 +1064,7 @@
                 currentXP = gameState.currentXP || 0;
                 xpToNextLevel = gameState.xpToNextLevel || 100;
                 soundEnabled = gameState.soundEnabled !== undefined ? gameState.soundEnabled : true;
+                const playerName = gameState.playerName || '';
 
                 // Restore cameras
                 if (gameState.cameras) {
@@ -1032,6 +1117,34 @@
             } else {
                 showMessage('No saved game found.');
             }
+        }
+
+        function addToLeaderboard(name, frames) {
+            let leaderboard = JSON.parse(localStorage.getItem('cameraClickerLeaderboard')) || [];
+            leaderboard.push({ name, frames });
+            // Sort descendingly
+            leaderboard.sort((a, b) => b.frames - a.frames);
+            // Keep top 10
+            leaderboard = leaderboard.slice(0, 10);
+            localStorage.setItem('cameraClickerLeaderboard', JSON.stringify(leaderboard));
+        }
+
+        function loadLeaderboard() {
+            const leaderboard = JSON.parse(localStorage.getItem('cameraClickerLeaderboard')) || [];
+            leaderboardTableBody.innerHTML = '';
+            leaderboard.forEach((entry, index) => {
+                const tr = document.createElement('tr');
+                const rankTd = document.createElement('td');
+                rankTd.textContent = index + 1;
+                const nameTd = document.createElement('td');
+                nameTd.textContent = entry.name;
+                const framesTd = document.createElement('td');
+                framesTd.textContent = Math.floor(entry.frames);
+                tr.appendChild(rankTd);
+                tr.appendChild(nameTd);
+                tr.appendChild(framesTd);
+                leaderboardTableBody.appendChild(tr);
+            });
         }
 
         // Save and Load Buttons Event Listeners
@@ -1134,7 +1247,6 @@
         }
 
         // Navigation functionality
-        const navLinks = document.querySelectorAll('.nav-link');
         navLinks.forEach(link => {
             link.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -1146,8 +1258,33 @@
                     sec.classList.remove('active');
                 });
                 document.getElementById(section).classList.add('active');
+                if (section === 'leaderboard') {
+                    loadLeaderboard();
+                }
             });
         });
+
+        function navigateToSection(sectionId) {
+            // Remove 'active' class from all nav links
+            navLinks.forEach(nav => nav.classList.remove('active'));
+            // Add 'active' class to the desired nav link
+            const targetNav = document.querySelector(`.nav-link[data-section="${sectionId}"]`);
+            if (targetNav) {
+                targetNav.classList.add('active');
+                // Hide all content sections
+                document.querySelectorAll('.content-section').forEach(sec => {
+                    sec.classList.remove('active');
+                });
+                // Show the desired section
+                const targetSection = document.getElementById(sectionId);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                    if (sectionId === 'leaderboard') {
+                        loadLeaderboard();
+                    }
+                }
+            }
+        }
     </script>
 </body>
 </html>
