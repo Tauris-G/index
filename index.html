@@ -487,9 +487,9 @@
         const newGameButton = document.getElementById('newGameButton');
         const loadGameButton = document.getElementById('loadGameButton');
 
-        // Initialize Howler.js sounds with local files
+        // Initialize Howler.js sounds with CORS-friendly online files
         const clickSound = new Howl({
-            src: ['audio/click.mp3'],
+            src: ['https://cdn.pixabay.com/download/audio/2022/03/15/audio_918c653777.mp3?filename=camera-click-112145.mp3'],
             html5: true,
             volume: 0.5,
             onloaderror: function(id, error) {
@@ -498,7 +498,7 @@
         });
 
         const achievementSound = new Howl({
-            src: ['audio/achievement.mp3'],
+            src: ['https://cdn.pixabay.com/download/audio/2022/02/15/audio_8d0b89ae26.mp3?filename=success-fanfare-trumpets-6185.mp3'],
             html5: true,
             volume: 0.7,
             onloaderror: function(id, error) {
@@ -507,8 +507,8 @@
         });
 
         const backgroundMusic = new Howl({
-            src: ['audio/background.mp3'],
-            autoplay: true,
+            src: ['https://cdn.pixabay.com/download/audio/2022/01/12/audio_0e7069ab1d.mp3?filename=lounge-music-15590.mp3'],
+            autoplay: false, // Start manually after user interaction
             loop: true,
             volume: 0.2,
             html5: true,
@@ -544,6 +544,11 @@
             gameStarted = true;
             enableGameInteractions();
             initializeGame();
+
+            // Play background music after user interaction
+            if (soundEnabled) {
+                backgroundMusic.play();
+            }
         }
 
         function disableGameInteractions() {
@@ -575,10 +580,6 @@
             updateAchievements();
             initializeTooltips();
             updateSoundToggle();
-            // Start background music if sound is enabled
-            if (soundEnabled) {
-                backgroundMusic.play();
-            }
         }
 
         cameraButton.addEventListener('click', () => {
@@ -739,6 +740,7 @@
                 button.textContent = 'Owned';
                 addCameraToCollection(camera);
                 showMessage(`You purchased the ${camera.name}!`);
+                if (soundEnabled) achievementSound.play();
                 checkAchievements();
             } else if (camera.owned) {
                 showMessage('You already own this camera!');
@@ -766,6 +768,7 @@
                 button.disabled = true;
                 button.textContent = 'Owned';
                 showMessage(`You purchased the ${upgrade.name}!`);
+                if (soundEnabled) achievementSound.play();
                 checkAchievements();
             } else if (upgrade.owned) {
                 showMessage('You already own this upgrade!');
@@ -869,7 +872,7 @@
         // Sound toggle functionality
         function updateSoundToggle() {
             soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
-            if (soundEnabled) {
+            if (soundEnabled && gameStarted) {
                 backgroundMusic.play();
             } else {
                 backgroundMusic.pause();
@@ -1100,6 +1103,7 @@
                 updateFrameCounter();
                 addCameraToCollection(infinityCamera);
                 showMessage('You have been awarded the Infinity Camera!');
+                if (soundEnabled) achievementSound.play();
             }
         }
 
