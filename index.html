@@ -13,7 +13,7 @@
     <!-- Meta tag for responsiveness -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* Your existing CSS styles */
+        /* Existing CSS styles */
         body {
             font-family: 'Baloo 2', cursive;
             background-color: #87CEEB;
@@ -228,6 +228,67 @@
         .load-button {
             bottom: 200px;
         }
+        /* Main Menu Styles */
+        .main-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #87CEEB;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeInMenu 1s forwards;
+        }
+        @keyframes fadeInMenu {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .menu-title {
+            font-size: 3rem;
+            color: #228B22;
+            margin-bottom: 30px;
+            animation: slideDown 1s forwards;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .menu-button {
+            padding: 15px 30px;
+            font-size: 1.5rem;
+            background-color: #228B22;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            animation: fadeInButtons 1s forwards;
+        }
+        .menu-button:hover {
+            background-color: #1e7e1e;
+        }
+        @keyframes fadeInButtons {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        /* Hide Game Content Before Start */
+        .game-content {
+            display: none;
+            opacity: 0;
+            animation: fadeInGame 1s forwards;
+        }
+        @keyframes fadeInGame {
+            to { opacity: 1; }
+        }
         /* Responsive Styles */
         @media (min-width: 576px) {
             .header h1 {
@@ -257,6 +318,12 @@
             .surprise {
                 font-size: 50px;
             }
+            .menu-title {
+                font-size: 4rem;
+            }
+            .menu-button {
+                font-size: 2rem;
+            }
         }
         @media (min-width: 768px) {
             .camera-button {
@@ -278,97 +345,109 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>📸 Camera Clicker Simulator</h1>
-    </div>
-
-    <!-- Navigation Tabs -->
-    <ul class="nav nav-tabs justify-content-center">
-        <li class="nav-item">
-            <a class="nav-link active" href="#" data-section="home">Home</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="#" data-section="upgrades">Upgrades</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="#" data-section="inventory">Inventory</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="#" data-section="achievements">Achievements</a>
-        </li>
-    </ul>
-
-    <!-- Home Section -->
-    <div id="home" class="content-section active">
-        <div class="camera-section">
-            <div id="cameraButton" class="camera-button">📸</div>
-        </div>
-
-        <div class="frame-counter" id="frameCounter">
-            Frames: 0
-        </div>
-
-        <div class="level-counter" id="levelCounter">
-            Level: 1
-        </div>
-
-        <div class="xp-counter">
-            XP: <span id="currentXP">0</span>/<span id="xpToNextLevel">100</span>
-        </div>
-
-        <div class="xp-bar-container">
-            <div id="xpBar" class="xp-bar"></div>
-        </div>
-
-        <div class="progress-container">
-            <div id="progressBar" class="progress-bar"></div>
-        </div>
-
-        <div id="message" class="message"></div>
-
-        <div class="motivation" id="motivationMessage"></div>
-
-        <!-- Camera Shop -->
-        <div class="camera-shop" id="cameraShop">
-            <!-- Cameras will be dynamically inserted here -->
+    <!-- Main Menu -->
+    <div id="mainMenu" class="main-menu">
+        <h1 class="menu-title">📸 Camera Clicker Simulator</h1>
+        <div class="menu-buttons">
+            <button id="newGameButton" class="menu-button">New Game</button>
+            <button id="loadGameButton" class="menu-button">Load Game</button>
         </div>
     </div>
 
-    <!-- Upgrades Section -->
-    <div id="upgrades" class="content-section">
-        <div class="shop-section" id="upgradeShop">
-            <!-- Upgrades will be dynamically inserted here -->
+    <!-- Game Content -->
+    <div id="gameContent" class="game-content">
+        <div class="header">
+            <h1>📸 Camera Clicker Simulator</h1>
         </div>
-    </div>
 
-    <!-- Inventory Section -->
-    <div id="inventory" class="content-section">
-        <div class="owned-cameras">
-            <h2>Your Camera Inventory</h2>
-            <div class="camera-collection" id="cameraCollection"></div>
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs justify-content-center">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" data-section="home">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-section="upgrades">Upgrades</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-section="inventory">Inventory</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-section="achievements">Achievements</a>
+            </li>
+        </ul>
+
+        <!-- Home Section -->
+        <div id="home" class="content-section active">
+            <div class="camera-section">
+                <div id="cameraButton" class="camera-button">📸</div>
+            </div>
+
+            <div class="frame-counter" id="frameCounter">
+                Frames: 0
+            </div>
+
+            <div class="level-counter" id="levelCounter">
+                Level: 1
+            </div>
+
+            <div class="xp-counter">
+                XP: <span id="currentXP">0</span>/<span id="xpToNextLevel">100</span>
+            </div>
+
+            <div class="xp-bar-container">
+                <div id="xpBar" class="xp-bar"></div>
+            </div>
+
+            <div class="progress-container">
+                <div id="progressBar" class="progress-bar"></div>
+            </div>
+
+            <div id="message" class="message"></div>
+
+            <div class="motivation" id="motivationMessage"></div>
+
+            <!-- Camera Shop -->
+            <div class="camera-shop" id="cameraShop">
+                <!-- Cameras will be dynamically inserted here -->
+            </div>
         </div>
-    </div>
 
-    <!-- Achievements Section -->
-    <div id="achievements" class="content-section">
-        <div class="owned-cameras">
-            <h2>Your Achievements</h2>
-            <div class="achievements-collection" id="achievementsCollection"></div>
+        <!-- Upgrades Section -->
+        <div id="upgrades" class="content-section">
+            <div class="shop-section" id="upgradeShop">
+                <!-- Upgrades will be dynamically inserted here -->
+            </div>
         </div>
-    </div>
 
-    <div class="footer">
-        <p>© 2024 Camera Clicker Simulator</p>
-    </div>
+        <!-- Inventory Section -->
+        <div id="inventory" class="content-section">
+            <div class="owned-cameras">
+                <h2>Your Camera Inventory</h2>
+                <div class="camera-collection" id="cameraCollection"></div>
+            </div>
+        </div>
 
-    <!-- Sound Toggle Button -->
-    <div id="soundToggle" class="sound-toggle">🔊</div>
-    <!-- Settings Button -->
-    <div id="settingsButton" class="settings-button">⚙️</div>
-    <!-- Save Game Button -->
-    <div id="saveButton" class="save-button">💾</div>
-    <!-- Load Game Button -->
-    <div id="loadButton" class="load-button">📂</div>
+        <!-- Achievements Section -->
+        <div id="achievements" class="content-section">
+            <div class="owned-cameras">
+                <h2>Your Achievements</h2>
+                <div class="achievements-collection" id="achievementsCollection"></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 Camera Clicker Simulator</p>
+        </div>
+
+        <!-- Sound Toggle Button -->
+        <div id="soundToggle" class="sound-toggle">🔊</div>
+        <!-- Settings Button -->
+        <div id="settingsButton" class="settings-button">⚙️</div>
+        <!-- Save Game Button -->
+        <div id="saveButton" class="save-button">💾</div>
+        <!-- Load Game Button -->
+        <div id="loadButton" class="load-button">📂</div>
+    </div>
 
     <!-- Game Scripts -->
     <script>
@@ -386,6 +465,7 @@
         let currentXP = 0;
         let xpToNextLevel = 100;
         let autoClickInterval = null;
+        let gameStarted = false;
 
         const cameraButton = document.getElementById('cameraButton');
         const frameCounter = document.getElementById('frameCounter');
@@ -402,6 +482,10 @@
         const progressBar = document.getElementById('progressBar');
         const saveButton = document.getElementById('saveButton');
         const loadButton = document.getElementById('loadButton');
+        const gameContent = document.getElementById('gameContent');
+        const mainMenu = document.getElementById('mainMenu');
+        const newGameButton = document.getElementById('newGameButton');
+        const loadGameButton = document.getElementById('loadGameButton');
 
         // Initialize Howler.js sounds with local files
         const clickSound = new Howl({
@@ -433,7 +517,72 @@
             }
         });
 
+        // Disable interactions before game starts
+        disableGameInteractions();
+
+        // Event listeners for main menu buttons
+        newGameButton.addEventListener('click', () => {
+            startNewGame();
+        });
+
+        loadGameButton.addEventListener('click', () => {
+            loadGame();
+            startGame();
+        });
+
+        function startNewGame() {
+            resetGame();
+            startGame();
+        }
+
+        function startGame() {
+            mainMenu.style.display = 'none';
+            gameContent.style.display = 'block';
+            setTimeout(() => {
+                gameContent.classList.add('active');
+            }, 100);
+            gameStarted = true;
+            enableGameInteractions();
+            initializeGame();
+        }
+
+        function disableGameInteractions() {
+            cameraButton.style.pointerEvents = 'none';
+            soundToggle.style.pointerEvents = 'none';
+            settingsButton.style.pointerEvents = 'none';
+            saveButton.style.pointerEvents = 'none';
+            loadButton.style.pointerEvents = 'none';
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.style.pointerEvents = 'none';
+            });
+        }
+
+        function enableGameInteractions() {
+            cameraButton.style.pointerEvents = 'auto';
+            soundToggle.style.pointerEvents = 'auto';
+            settingsButton.style.pointerEvents = 'auto';
+            saveButton.style.pointerEvents = 'auto';
+            loadButton.style.pointerEvents = 'auto';
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.style.pointerEvents = 'auto';
+            });
+        }
+
+        function initializeGame() {
+            initializeShop();
+            updateFrameCounter();
+            updateXPBar();
+            updateAchievements();
+            initializeTooltips();
+            updateSoundToggle();
+            // Start background music if sound is enabled
+            if (soundEnabled) {
+                backgroundMusic.play();
+            }
+        }
+
         cameraButton.addEventListener('click', () => {
+            if (!gameStarted) return;
             const framesGained = framesPerClick * clickMultiplier;
             frames += framesGained;
             totalClicks++;
@@ -730,13 +879,18 @@
         soundToggle.addEventListener('click', () => {
             soundEnabled = !soundEnabled;
             updateSoundToggle();
-            saveGame(); // Save the sound setting
+            if (gameStarted) saveGame(); // Save the sound setting
         });
 
         // Settings button functionality (reset game)
         settingsButton.addEventListener('click', () => {
             if (confirm('Do you want to reset the game?')) {
                 resetGame();
+                // Return to main menu
+                gameContent.style.display = 'none';
+                mainMenu.style.display = 'flex';
+                gameStarted = false;
+                disableGameInteractions();
             }
         });
 
@@ -745,11 +899,13 @@
             framesPerClick = 1;
             totalClicks = 0;
             progress = 0;
+            progressGoal = 100;
             clickMultiplier = 1;
             fpsMultiplier = 1;
             level = 1;
             currentXP = 0;
             xpToNextLevel = 100;
+            framesPerSecond = 0;
             levelCounter.textContent = 'Level: ' + level;
             xpToNextLevelSpan.textContent = xpToNextLevel;
             currentXPSpan.textContent = currentXP;
@@ -877,20 +1033,24 @@
 
         // Save and Load Buttons Event Listeners
         saveButton.addEventListener('click', () => {
+            if (!gameStarted) return;
             saveGame();
         });
 
         loadButton.addEventListener('click', () => {
+            if (!gameStarted) return;
             loadGame();
         });
 
         // Auto-save every minute
         setInterval(() => {
+            if (!gameStarted) return;
             saveGame();
         }, 60000);
 
         // Passive income mechanism
         setInterval(() => {
+            if (!gameStarted) return;
             const framesGained = framesPerSecond * fpsMultiplier;
             frames += framesGained;
             gainXP(framesGained / 10);
@@ -969,24 +1129,12 @@
             });
         }
 
-        // Start background music if sound is enabled
-        if (soundEnabled) {
-            backgroundMusic.play();
-        }
-
-        // Initialize game
-        loadGame(); // Load saved game if available
-        initializeShop();
-        updateFrameCounter();
-        updateXPBar();
-        updateAchievements();
-        initializeTooltips();
-
         // Navigation functionality
         const navLinks = document.querySelectorAll('.nav-link');
         navLinks.forEach(link => {
             link.addEventListener('click', function (e) {
                 e.preventDefault();
+                if (!gameStarted) return;
                 navLinks.forEach(nav => nav.classList.remove('active'));
                 this.classList.add('active');
                 const section = this.getAttribute('data-section');
