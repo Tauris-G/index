@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Camera Clicker Simulator</title>
+    <!-- Include Howler.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+    <!-- Include Bootstrap CSS and JS for tooltips and navigation -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <!-- Include Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Meta tag for responsiveness -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Baloo 2', cursive;
+            background-color: #87CEEB;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        .header, .frame-counter, .motivation, .footer {
+            text-align: center;
+        }
+        .header {
+            padding: 20px;
+            background-color: #228B22;
+            color: white;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            margin: 0;
+        }
+        .camera-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .camera-button {
+            font-size: 100px;
+            cursor: pointer;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .frame-counter, .level-counter, .xp-counter {
+            margin-top: 10px;
+            font-size: 1.2rem;
+            color: #228B22;
+            text-shadow: 1px 1px 2px #000;
+        }
+        .message {
+            margin-top: 10px;
+            font-size: 1rem;
+            color: #ff0000;
+            text-align: center;
+            min-height: 24px;
+        }
+        .motivation {
+            margin-top: 10px;
+            font-size: 1.2rem;
+            color: #ff4500;
+            text-shadow: 1px 1px 2px #000;
+        }
+        .shop-section, .camera-collection {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .shop-item {
+            background: #FFD700;
+            border: 2px solid #8B4513;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            width: 160px;
+            position: relative;
+        }
+        .shop-item .emoji {
+            font-size: 60px;
+            margin-bottom: 10px;
+        }
+        .owned-cameras {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .owned-cameras h2 {
+            color: #228B22;
+            text-shadow: 1px 1px 2px #000;
+        }
+        .camera-collection .emoji {
+            font-size: 40px;
+            animation: fadeIn 1s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .footer {
+            padding: 20px;
+            background: #228B22;
+            color: white;
+            margin-top: 20px;
+        }
+        .surprise {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 40px;
+            animation: spin 2s infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .sound-toggle {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .settings-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        /* Progress bar styles */
+        .progress-container {
+            width: 90%;
+            max-width: 500px;
+            background-color: #ddd;
+            border-radius: 5px;
+            margin: 15px auto;
+            height: 15px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #228B22;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        /* Tooltip styles for custom appearance */
+        .tooltip-inner {
+            background-color: #333 !important;
+            color: #fff !important;
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        .tooltip.bs-tooltip-top .arrow::before {
+            border-top-color: #333 !important;
+        }
+        /* Navigation styles */
+        .nav-tabs {
+            flex-wrap: wrap;
+        }
+        .nav-tabs .nav-link.active {
+            background-color: #228B22;
+            color: white;
+        }
+        .nav-tabs .nav-link {
+            color: #228B22;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        /* Camera Shop styles */
+        .camera-shop {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        /* Achievements styles */
+        .achievements-collection {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+        .achievement-item {
+            background: #e0e0e0;
+            border: 2px solid #8B4513;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            width: 200px;
+        }
+        .achievement-earned {
+            background: #FFD700;
+        }
+        .xp-bar-container {
+            width: 90%;
+            max-width: 500px;
+            background-color: #ddd;
+            border-radius: 5px;
+            margin: 10px auto;
+            height: 15px;
+            overflow: hidden;
+        }
+        .xp-bar {
+            height: 100%;
+            background-color: #ff4500;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        /* Responsive Styles */
+        @media (min-width: 576px) {
+            .header h1 {
+                font-size: 3rem;
+            }
+            .camera-button {
+                font-size: 120px;
+            }
+            .frame-counter, .level-counter, .xp-counter {
+                font-size: 1.5rem;
+            }
+            .message {
+                font-size: 1.2rem;
+            }
+            .motivation {
+                font-size: 1.5rem;
+            }
+            .shop-item {
+                width: 180px;
+            }
+            .shop-item .emoji {
+                font-size: 80px;
+            }
+            .camera-collection .emoji {
+                font-size: 45px;
+            }
+            .surprise {
+                font-size: 50px;
+            }
+        }
+        @media (min-width: 768px) {
+            .camera-button {
+                font-size: 150px;
+            }
+            .shop-item {
+                width: 200px;
+            }
+            .shop-item .emoji {
+                font-size: 100px;
+            }
+            .camera-collection .emoji {
+                font-size: 50px;
+            }
+            .achievement-item {
+                width: 220px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📸 Camera Clicker Simulator</h1>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-tabs justify-content-center">
+        <li class="nav-item">
+            <a class="nav-link active" href="#" data-section="home">Home</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" data-section="upgrades">Upgrades</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" data-section="inventory">Inventory</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" data-section="achievements">Achievements</a>
+        </li>
+    </ul>
+
+    <!-- Home Section -->
+    <div id="home" class="content-section active">
+        <div class="camera-section">
+            <div id="cameraButton" class="camera-button">📸</div>
+        </div>
+
+        <div class="frame-counter" id="frameCounter">
+            Frames: 0
+        </div>
+
+        <div class="level-counter" id="levelCounter">
+            Level: 1
+        </div>
+
+        <div class="xp-counter">
+            XP: <span id="currentXP">0</span>/<span id="xpToNextLevel">100</span>
+        </div>
+
+        <div class="xp-bar-container">
+            <div id="xpBar" class="xp-bar"></div>
+        </div>
+
+        <div class="progress-container">
+            <div id="progressBar" class="progress-bar"></div>
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <div class="motivation" id="motivationMessage"></div>
+
+        <!-- Camera Shop -->
+        <div class="camera-shop" id="cameraShop">
+            <!-- Cameras will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <!-- Upgrades Section -->
+    <div id="upgrades" class="content-section">
+        <div class="shop-section" id="upgradeShop">
+            <!-- Upgrades will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <!-- Inventory Section -->
+    <div id="inventory" class="content-section">
+        <div class="owned-cameras">
+            <h2>Your Camera Inventory</h2>
+            <div class="camera-collection" id="cameraCollection"></div>
+        </div>
+    </div>
+
+    <!-- Achievements Section -->
+    <div id="achievements" class="content-section">
+        <div class="owned-cameras">
+            <h2>Your Achievements</h2>
+            <div class="achievements-collection" id="achievementsCollection"></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2024 Camera Clicker Simulator</p>
+    </div>
+
+    <!-- Sound Toggle Button -->
+    <div id="soundToggle" class="sound-toggle">🔊</div>
+    <!-- Settings Button -->
+    <div id="settingsButton" class="settings-button">⚙️</div>
+
+    <!-- Game Scripts -->
+    <script>
+        // Game variables
+        let frames = 0;
+        let framesPerClick = 1;
+        let totalClicks = 0;
+        let soundEnabled = true;
+        let framesPerSecond = 0;
+        let progress = 0;
+        let progressGoal = 100;
+        let clickMultiplier = 1;
+        let fpsMultiplier = 1;
+        let level = 1;
+        let currentXP = 0;
+        let xpToNextLevel = 100;
+        let autoClickInterval = null;
+
+        const cameraButton = document.getElementById('cameraButton');
+        const frameCounter = document.getElementById('frameCounter');
+        const levelCounter = document.getElementById('levelCounter');
+        const xpBar = document.getElementById('xpBar');
+        const xpToNextLevelSpan = document.getElementById('xpToNextLevel');
+        const currentXPSpan = document.getElementById('currentXP');
+        const motivationMessage = document.getElementById('motivationMessage');
+        const cameraCollection = document.getElementById('cameraCollection');
+        const achievementsCollection = document.getElementById('achievementsCollection');
+        const messageDiv = document.getElementById('message');
+        const soundToggle = document.getElementById('soundToggle');
+        const settingsButton = document.getElementById('settingsButton');
+        const progressBar = document.getElementById('progressBar');
+
+        // Initialize Howler.js sounds with local files
+        const clickSound = new Howl({
+            src: ['audio/click.mp3'],
+            html5: true,
+            volume: 0.5,
+            onloaderror: function(id, error) {
+                console.error('Click sound failed to load:', error);
+            }
+        });
+
+        const achievementSound = new Howl({
+            src: ['audio/achievement.mp3'],
+            html5: true,
+            volume: 0.7,
+            onloaderror: function(id, error) {
+                console.error('Achievement sound failed to load:', error);
+            }
+        });
+
+        const backgroundMusic = new Howl({
+            src: ['audio/background.mp3'],
+            autoplay: true,
+            loop: true,
+            volume: 0.2,
+            html5: true,
+            onloaderror: function(id, error) {
+                console.error('Background music failed to load:', error);
+            }
+        });
+
+        cameraButton.addEventListener('click', () => {
+            const framesGained = framesPerClick * clickMultiplier;
+            frames += framesGained;
+            totalClicks++;
+            gainXP(framesGained / 10);
+            updateFrameCounter();
+            if (soundEnabled) clickSound.play();
+            showMotivation();
+            triggerSurprise();
+            updateProgress(framesGained);
+            checkAchievements();
+        });
+
+        // Camera data
+        const cameras = [
+            { id: 1, cost: 100, bonus: 2, owned: false, name: 'Basic Camera', emoji: '📷', description: 'Doubles your frames per click.' },
+            { id: 2, cost: 500, bonus: 3, owned: false, name: 'Advanced Camera', emoji: '📸', description: 'Triples your frames per click.' },
+            { id: 3, cost: 1000, bonus: 5, owned: false, name: 'Professional Camera', emoji: '📹', description: 'Quintuples your frames per click.' },
+            { id: 4, cost: 5000, bonus: 10, owned: false, name: 'Drone Camera', emoji: '🚁', description: 'Increases frames per click by 10x.' },
+            { id: 5, cost: 10000, bonus: 20, owned: false, name: '360° Camera', emoji: '🎥', description: 'Increases frames per click by 20x.' },
+            { id: 6, cost: 50000, bonus: 50, owned: false, name: 'Underwater Camera', emoji: '🌊', description: 'Increases frames per click by 50x.' },
+            { id: 7, cost: 100000, bonus: 100, owned: false, name: 'Space Camera', emoji: '🛰️', description: 'Increases frames per click by 100x.' },
+            { id: 8, cost: 500000, bonus: 200, owned: false, name: 'Quantum Camera', emoji: '🔬', description: 'Increases frames per click by 200x.' },
+            { id: 9, cost: 1000000, bonus: 500, owned: false, name: 'Time-Lapse Camera', emoji: '⏳', description: 'Increases frames per click by 500x.' },
+            { id: 10, cost: 5000000, bonus: 1000, owned: false, name: 'Dimensional Camera', emoji: '🌌', description: 'Increases frames per click by 1000x.' },
+            // New cameras
+            { id: 11, cost: 10000000, bonus: 2000, owned: false, name: 'Holographic Camera', emoji: '📽️', description: 'Increases frames per click by 2000x.' },
+            { id: 12, cost: 50000000, bonus: 5000, owned: false, name: 'Interstellar Camera', emoji: '🚀', description: 'Increases frames per click by 5000x.' },
+            { id: 13, cost: 100000000, bonus: 10000, owned: false, name: 'Dark Matter Camera', emoji: '🌑', description: 'Increases frames per click by 10000x.' },
+            { id: 14, cost: 500000000, bonus: 20000, owned: false, name: 'Antimatter Camera', emoji: '⚛️', description: 'Increases frames per click by 20000x.' },
+            { id: 15, cost: 1000000000, bonus: 50000, owned: false, name: 'Singularity Camera', emoji: '🕳️', description: 'Increases frames per click by 50000x.' },
+            // Special camera awarded for ultimate achievement
+            { id: 16, cost: 0, bonus: 100000, owned: false, name: 'Infinity Camera', emoji: '♾️', description: 'Grants infinite frames per click!', special: true }
+        ];
+
+        // Upgrade data
+        const upgrades = [
+            { id: 1, cost: 200, owned: false, name: 'Camera Strap', emoji: '📿', description: 'Increases frames per click by 10%.', effect: { clickMultiplier: 1.1 } },
+            { id: 2, cost: 1000, owned: false, name: 'Extra Lens', emoji: '🔍', description: 'Increases frames per click by 25%.', effect: { clickMultiplier: 1.25 } },
+            { id: 3, cost: 5000, owned: false, name: 'Filters', emoji: '🎭', description: 'Increases frames per click by 50%.', effect: { clickMultiplier: 1.5 } },
+            { id: 4, cost: 20000, owned: false, name: 'Tripod', emoji: '🎛️', description: 'Increases frames per second by 10%.', effect: { fpsMultiplier: 1.1 } },
+            { id: 5, cost: 100000, owned: false, name: 'Lighting Kit', emoji: '💡', description: 'Increases frames per second by 25%.', effect: { fpsMultiplier: 1.25 } },
+            { id: 6, cost: 500000, owned: false, name: 'Editing Software', emoji: '💻', description: 'Increases frames per second by 50%.', effect: { fpsMultiplier: 1.5 } },
+            { id: 7, cost: 1000000, owned: false, name: 'Drone', emoji: '🛸', description: 'Increases frames per click by 100%.', effect: { clickMultiplier: 2 } },
+            // New upgrades
+            { id: 8, cost: 5000000, owned: false, name: 'Memory Card', emoji: '💾', description: 'Increases frames per click by 150%.', effect: { clickMultiplier: 2.5 } },
+            { id: 9, cost: 10000000, owned: false, name: 'Battery Pack', emoji: '🔋', description: 'Increases frames per second by 75%.', effect: { fpsMultiplier: 1.75 } },
+            { id: 10, cost: 50000000, owned: false, name: 'Studio Setup', emoji: '🏢', description: 'Increases frames per second by 100%.', effect: { fpsMultiplier: 2 } },
+            { id: 11, cost: 100000000, owned: false, name: 'AI Assistant', emoji: '🤖', description: 'Automatically clicks for you.', effect: { autoClick: true } },
+            { id: 12, cost: 500000000, owned: false, name: 'Quantum Lens', emoji: '🔮', description: 'Increases frames per click by 500%.', effect: { clickMultiplier: 5 } },
+            { id: 13, cost: 1000000000, owned: false, name: 'Time Machine', emoji: '⏰', description: 'Doubles all production.', effect: { clickMultiplier: 2, fpsMultiplier: 2 } },
+        ];
+
+        // Achievements data
+        const achievements = [
+            { id: 1, name: 'First Click', description: 'Click the camera once.', achieved: false, condition: () => totalClicks >= 1 },
+            { id: 2, name: 'Click Novice', description: 'Click the camera 50 times.', achieved: false, condition: () => totalClicks >= 50 },
+            { id: 3, name: 'Click Master', description: 'Click the camera 100 times.', achieved: false, condition: () => totalClicks >= 100 },
+            { id: 4, name: 'Click Legend', description: 'Click the camera 500 times.', achieved: false, condition: () => totalClicks >= 500 },
+            { id: 5, name: 'Collector', description: 'Own 5 cameras.', achieved: false, condition: () => cameras.filter(c => c.owned).length >= 5 },
+            { id: 6, name: 'Camera Enthusiast', description: 'Own 10 cameras.', achieved: false, condition: () => cameras.filter(c => c.owned).length >= 10 },
+            { id: 7, name: 'Upgrader', description: 'Purchase 5 upgrades.', achieved: false, condition: () => upgrades.filter(u => u.owned).length >= 5 },
+            { id: 8, name: 'Upgrade Expert', description: 'Purchase 10 upgrades.', achieved: false, condition: () => upgrades.filter(u => u.owned).length >= 10 },
+            { id: 9, name: 'Millionaire', description: 'Accumulate 1,000,000 frames.', achieved: false, condition: () => frames >= 1000000 },
+            { id: 10, name: 'Billionaire', description: 'Accumulate 1,000,000,000 frames.', achieved: false, condition: () => frames >= 1000000000 },
+            { id: 11, name: 'XP Collector', description: 'Reach Level 10.', achieved: false, condition: () => level >= 10 },
+            { id: 12, name: 'XP Master', description: 'Reach Level 25.', achieved: false, condition: () => level >= 25 },
+            { id: 13, name: 'XP Legend', description: 'Reach Level 50.', achieved: false, condition: () => level >= 50 },
+            { id: 14, name: 'Speed Clicker', description: 'Click 10 times in 1 second.', achieved: false, condition: checkSpeedClicker },
+            { id: 15, name: 'Auto Enthusiast', description: 'Purchase the AI Assistant.', achieved: false, condition: () => upgrades.find(u => u.name === 'AI Assistant').owned },
+            { id: 16, name: 'Time Traveler', description: 'Purchase the Time Machine.', achieved: false, condition: () => upgrades.find(u => u.name === 'Time Machine').owned },
+            { id: 17, name: 'Camera Tycoon', description: 'Own all cameras.', achieved: false, condition: () => cameras.filter(c => c.owned && !c.special).length === cameras.filter(c => !c.special).length },
+            { id: 18, name: 'Upgrade Tycoon', description: 'Own all upgrades.', achieved: false, condition: () => upgrades.filter(u => u.owned).length === upgrades.length },
+            { id: 19, name: 'Frame Hoarder', description: 'Accumulate 10,000,000,000 frames.', achieved: false, condition: () => frames >= 10000000000 },
+            { id: 20, name: 'XP Guru', description: 'Reach Level 100.', achieved: false, condition: () => level >= 100 },
+            { id: 21, name: 'Ultimate Photographer', description: 'Unlock all cameras and upgrades.', achieved: false, condition: checkUltimateAchievement },
+            // Add more achievements as desired
+        ];
+
+        // Variables for checking speed clicker achievement
+        let clickTimes = [];
+
+        function checkSpeedClicker() {
+            const now = Date.now();
+            clickTimes.push(now);
+            clickTimes = clickTimes.filter(time => now - time <= 1000);
+            return clickTimes.length >= 10;
+        }
+
+        function checkUltimateAchievement() {
+            const allCamerasOwned = cameras.filter(c => c.owned && !c.special).length === cameras.filter(c => !c.special).length;
+            const allUpgradesOwned = upgrades.filter(u => u.owned).length === upgrades.length;
+            return allCamerasOwned && allUpgradesOwned;
+        }
+
+        function createShopItem(item, container, type) {
+            const shopItem = document.createElement('div');
+            shopItem.className = 'shop-item';
+
+            const emojiDiv = document.createElement('div');
+            emojiDiv.className = 'emoji';
+            emojiDiv.textContent = item.emoji;
+
+            const nameP = document.createElement('p');
+            nameP.textContent = item.name;
+
+            const costP = document.createElement('p');
+            costP.innerHTML = `Cost: <span>${item.cost}</span> frames`;
+
+            const button = document.createElement('button');
+            button.id = `buy${type}Button${item.id}`;
+            button.className = type === 'Camera' ? 'btn btn-warning' : 'btn btn-success';
+            button.textContent = item.owned ? 'Owned' : 'Buy';
+            button.disabled = item.owned || (item.special && !item.owned);
+            button.setAttribute('data-bs-toggle', 'tooltip');
+            button.setAttribute('data-bs-placement', 'top');
+            button.setAttribute('title', item.description);
+            button.addEventListener('click', () => {
+                if (type === 'Camera') {
+                    buyCamera(item.id);
+                } else {
+                    buyUpgrade(item.id);
+                }
+            });
+
+            shopItem.appendChild(emojiDiv);
+            shopItem.appendChild(nameP);
+            shopItem.appendChild(costP);
+            shopItem.appendChild(button);
+
+            container.appendChild(shopItem);
+        }
+
+        function initializeShop() {
+            const cameraShop = document.getElementById('cameraShop');
+            cameraShop.innerHTML = '';
+            cameras.forEach(camera => {
+                if (!camera.special) {
+                    createShopItem(camera, cameraShop, 'Camera');
+                }
+            });
+
+            const upgradeShop = document.getElementById('upgradeShop');
+            upgradeShop.innerHTML = '';
+            upgrades.forEach(upgrade => {
+                createShopItem(upgrade, upgradeShop, 'Upgrade');
+            });
+        }
+
+        function buyCamera(id) {
+            const camera = cameras.find(c => c.id === id);
+            if (!camera.owned && frames >= camera.cost) {
+                frames -= camera.cost;
+                clickMultiplier *= camera.bonus;
+                camera.owned = true;
+                updateFrameCounter();
+                const button = document.getElementById('buyCameraButton' + id);
+                button.disabled = true;
+                button.textContent = 'Owned';
+                addCameraToCollection(camera);
+                showMessage(`You purchased the ${camera.name}!`);
+                checkAchievements();
+            } else if (camera.owned) {
+                showMessage('You already own this camera!');
+            } else {
+                showMessage('Not enough frames!');
+            }
+        }
+
+        function buyUpgrade(id) {
+            const upgrade = upgrades.find(u => u.id === id);
+            if (!upgrade.owned && frames >= upgrade.cost) {
+                frames -= upgrade.cost;
+                upgrade.owned = true;
+                if (upgrade.effect.clickMultiplier) {
+                    clickMultiplier *= upgrade.effect.clickMultiplier;
+                }
+                if (upgrade.effect.fpsMultiplier) {
+                    fpsMultiplier *= upgrade.effect.fpsMultiplier;
+                }
+                if (upgrade.effect.autoClick) {
+                    startAutoClick();
+                }
+                updateFrameCounter();
+                const button = document.getElementById('buyUpgradeButton' + id);
+                button.disabled = true;
+                button.textContent = 'Owned';
+                showMessage(`You purchased the ${upgrade.name}!`);
+                checkAchievements();
+            } else if (upgrade.owned) {
+                showMessage('You already own this upgrade!');
+            } else {
+                showMessage('Not enough frames!');
+            }
+        }
+
+        function startAutoClick() {
+            if (autoClickInterval === null) {
+                autoClickInterval = setInterval(() => {
+                    const framesGained = framesPerClick * clickMultiplier;
+                    frames += framesGained;
+                    gainXP(framesGained / 10);
+                    updateFrameCounter();
+                    checkAchievements();
+                }, 1000);
+            }
+        }
+
+        function updateFrameCounter() {
+            frameCounter.textContent = 'Frames: ' + Math.floor(frames);
+        }
+
+        function gainXP(amount) {
+            currentXP += amount;
+            if (currentXP >= xpToNextLevel) {
+                currentXP -= xpToNextLevel;
+                levelUp();
+            }
+            updateXPBar();
+        }
+
+        function levelUp() {
+            level++;
+            levelCounter.textContent = 'Level: ' + level;
+            xpToNextLevel = Math.floor(xpToNextLevel * 1.5);
+            xpToNextLevelSpan.textContent = xpToNextLevel;
+            showMessage('You leveled up to Level ' + level + '!');
+            if (soundEnabled) achievementSound.play();
+        }
+
+        function updateXPBar() {
+            currentXPSpan.textContent = Math.floor(currentXP);
+            const percentage = (currentXP / xpToNextLevel) * 100;
+            xpBar.style.width = percentage + '%';
+        }
+
+        function addCameraToCollection(item) {
+            const span = document.createElement('span');
+            span.textContent = item.emoji;
+            span.classList.add('emoji');
+            cameraCollection.appendChild(span);
+        }
+
+        function showMotivation() {
+            const motivationMessages = [
+                'Great start!',
+                'Keep snapping!',
+                "You're on fire!",
+                'Almost there!',
+                'Camera master!',
+                'Picture perfect!',
+                'Frame by frame!',
+                'Shutterbug!',
+                'Snap happy!',
+                'You rock!',
+                'Fantastic clicking!',
+                'Unstoppable!',
+                'Legendary!',
+                'Master Photographer!',
+                'Infinite frames!'
+            ];
+            const index = Math.floor(Math.random() * motivationMessages.length);
+            motivationMessage.textContent = motivationMessages[index];
+            setTimeout(() => {
+                motivationMessage.textContent = '';
+            }, 2000);
+        }
+
+        function triggerSurprise() {
+            if (totalClicks === 50) {
+                const surprise = document.createElement('div');
+                surprise.classList.add('surprise');
+                surprise.textContent = '🎉';
+                document.body.appendChild(surprise);
+                setTimeout(() => {
+                    surprise.remove();
+                }, 5000);
+                if (soundEnabled) achievementSound.play();
+            }
+        }
+
+        function showMessage(text) {
+            messageDiv.textContent = text;
+            setTimeout(() => {
+                messageDiv.textContent = '';
+            }, 2000);
+        }
+
+        // Sound toggle functionality
+        soundToggle.addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            if (soundEnabled) {
+                soundToggle.textContent = '🔊';
+                backgroundMusic.play();
+            } else {
+                soundToggle.textContent = '🔇';
+                backgroundMusic.pause();
+            }
+        });
+
+        // Settings button functionality (reset game)
+        settingsButton.addEventListener('click', () => {
+            if (confirm('Do you want to reset the game?')) {
+                resetGame();
+            }
+        });
+
+        function resetGame() {
+            frames = 0;
+            framesPerClick = 1;
+            totalClicks = 0;
+            progress = 0;
+            clickMultiplier = 1;
+            fpsMultiplier = 1;
+            level = 1;
+            currentXP = 0;
+            xpToNextLevel = 100;
+            levelCounter.textContent = 'Level: ' + level;
+            xpToNextLevelSpan.textContent = xpToNextLevel;
+            currentXPSpan.textContent = currentXP;
+            xpBar.style.width = '0%';
+
+            if (autoClickInterval !== null) {
+                clearInterval(autoClickInterval);
+                autoClickInterval = null;
+            }
+
+            cameras.forEach(camera => {
+                camera.owned = false;
+            });
+            upgrades.forEach(upgrade => {
+                upgrade.owned = false;
+            });
+            achievements.forEach(achievement => {
+                achievement.achieved = false;
+            });
+            cameraCollection.innerHTML = '';
+            achievementsCollection.innerHTML = '';
+            initializeShop();
+            updateFrameCounter();
+            updateXPBar();
+            updateAchievements();
+            updateProgress(0, true);
+        }
+
+        // Passive income mechanism
+        setInterval(() => {
+            const framesGained = framesPerSecond * fpsMultiplier;
+            frames += framesGained;
+            gainXP(framesGained / 10);
+            updateFrameCounter();
+            updateProgress(framesGained * fpsMultiplier);
+            checkAchievements();
+        }, 1000);
+
+        // Achievements check
+        function checkAchievements() {
+            achievements.forEach(achievement => {
+                if (!achievement.achieved && achievement.condition()) {
+                    achievement.achieved = true;
+                    showMessage('Achievement Unlocked: ' + achievement.name);
+                    if (soundEnabled) achievementSound.play();
+                    updateAchievements();
+                    if (achievement.name === 'Ultimate Photographer') {
+                        awardInfinityCamera();
+                    }
+                }
+            });
+        }
+
+        function updateAchievements() {
+            achievementsCollection.innerHTML = '';
+            achievements.forEach(achievement => {
+                const div = document.createElement('div');
+                div.className = 'achievement-item';
+                if (achievement.achieved) {
+                    div.classList.add('achievement-earned');
+                }
+                const name = document.createElement('h3');
+                name.textContent = achievement.name;
+                const desc = document.createElement('p');
+                desc.textContent = achievement.description;
+                div.appendChild(name);
+                div.appendChild(desc);
+                achievementsCollection.appendChild(div);
+            });
+        }
+
+        function awardInfinityCamera() {
+            const infinityCamera = cameras.find(c => c.name === 'Infinity Camera');
+            if (!infinityCamera.owned) {
+                infinityCamera.owned = true;
+                clickMultiplier *= infinityCamera.bonus;
+                updateFrameCounter();
+                addCameraToCollection(infinityCamera);
+                showMessage('You have been awarded the Infinity Camera!');
+            }
+        }
+
+        // Progress bar update
+        function updateProgress(amount, reset = false) {
+            if (reset) {
+                progress = 0;
+            } else {
+                progress += amount;
+            }
+            let percentage = (progress / progressGoal) * 100;
+            if (percentage >= 100) {
+                progress = 0;
+                percentage = 0;
+                progressGoal *= 2; // Increase goal for next level
+                showMessage('Progress Level Up!');
+                if (soundEnabled) achievementSound.play();
+            }
+            progressBar.style.width = percentage + '%';
+        }
+
+        // Initialize tooltips
+        function initializeTooltips() {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        }
+
+        // Start background music if sound is enabled
+        if (soundEnabled) {
+            backgroundMusic.play();
+        }
+
+        // Initialize game
+        initializeShop();
+        updateFrameCounter();
+        updateXPBar();
+        updateAchievements();
+        initializeTooltips();
+
+        // Navigation functionality
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                navLinks.forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+                const section = this.getAttribute('data-section');
+                document.querySelectorAll('.content-section').forEach(sec => {
+                    sec.classList.remove('active');
+                });
+                document.getElementById(section).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
