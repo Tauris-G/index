@@ -13,6 +13,7 @@
     <!-- Meta tag for responsiveness -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        /* Your existing CSS styles */
         body {
             font-family: 'Baloo 2', cursive;
             background-color: #87CEEB;
@@ -216,6 +217,17 @@
             width: 0%;
             transition: width 0.5s;
         }
+        /* Save and Load Buttons */
+        .save-button, .load-button {
+            position: fixed;
+            bottom: 140px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .load-button {
+            bottom: 200px;
+        }
         /* Responsive Styles */
         @media (min-width: 576px) {
             .header h1 {
@@ -353,6 +365,10 @@
     <div id="soundToggle" class="sound-toggle">🔊</div>
     <!-- Settings Button -->
     <div id="settingsButton" class="settings-button">⚙️</div>
+    <!-- Save Game Button -->
+    <div id="saveButton" class="save-button">💾</div>
+    <!-- Load Game Button -->
+    <div id="loadButton" class="load-button">📂</div>
 
     <!-- Game Scripts -->
     <script>
@@ -384,6 +400,8 @@
         const soundToggle = document.getElementById('soundToggle');
         const settingsButton = document.getElementById('settingsButton');
         const progressBar = document.getElementById('progressBar');
+        const saveButton = document.getElementById('saveButton');
+        const loadButton = document.getElementById('loadButton');
 
         // Initialize Howler.js sounds with local files
         const clickSound = new Howl({
@@ -440,13 +458,11 @@
             { id: 8, cost: 500000, bonus: 200, owned: false, name: 'Quantum Camera', emoji: '🔬', description: 'Increases frames per click by 200x.' },
             { id: 9, cost: 1000000, bonus: 500, owned: false, name: 'Time-Lapse Camera', emoji: '⏳', description: 'Increases frames per click by 500x.' },
             { id: 10, cost: 5000000, bonus: 1000, owned: false, name: 'Dimensional Camera', emoji: '🌌', description: 'Increases frames per click by 1000x.' },
-            // New cameras
             { id: 11, cost: 10000000, bonus: 2000, owned: false, name: 'Holographic Camera', emoji: '📽️', description: 'Increases frames per click by 2000x.' },
             { id: 12, cost: 50000000, bonus: 5000, owned: false, name: 'Interstellar Camera', emoji: '🚀', description: 'Increases frames per click by 5000x.' },
             { id: 13, cost: 100000000, bonus: 10000, owned: false, name: 'Dark Matter Camera', emoji: '🌑', description: 'Increases frames per click by 10000x.' },
             { id: 14, cost: 500000000, bonus: 20000, owned: false, name: 'Antimatter Camera', emoji: '⚛️', description: 'Increases frames per click by 20000x.' },
             { id: 15, cost: 1000000000, bonus: 50000, owned: false, name: 'Singularity Camera', emoji: '🕳️', description: 'Increases frames per click by 50000x.' },
-            // Special camera awarded for ultimate achievement
             { id: 16, cost: 0, bonus: 100000, owned: false, name: 'Infinity Camera', emoji: '♾️', description: 'Grants infinite frames per click!', special: true }
         ];
 
@@ -459,7 +475,6 @@
             { id: 5, cost: 100000, owned: false, name: 'Lighting Kit', emoji: '💡', description: 'Increases frames per second by 25%.', effect: { fpsMultiplier: 1.25 } },
             { id: 6, cost: 500000, owned: false, name: 'Editing Software', emoji: '💻', description: 'Increases frames per second by 50%.', effect: { fpsMultiplier: 1.5 } },
             { id: 7, cost: 1000000, owned: false, name: 'Drone', emoji: '🛸', description: 'Increases frames per click by 100%.', effect: { clickMultiplier: 2 } },
-            // New upgrades
             { id: 8, cost: 5000000, owned: false, name: 'Memory Card', emoji: '💾', description: 'Increases frames per click by 150%.', effect: { clickMultiplier: 2.5 } },
             { id: 9, cost: 10000000, owned: false, name: 'Battery Pack', emoji: '🔋', description: 'Increases frames per second by 75%.', effect: { fpsMultiplier: 1.75 } },
             { id: 10, cost: 50000000, owned: false, name: 'Studio Setup', emoji: '🏢', description: 'Increases frames per second by 100%.', effect: { fpsMultiplier: 2 } },
@@ -491,7 +506,6 @@
             { id: 19, name: 'Frame Hoarder', description: 'Accumulate 10,000,000,000 frames.', achieved: false, condition: () => frames >= 10000000000 },
             { id: 20, name: 'XP Guru', description: 'Reach Level 100.', achieved: false, condition: () => level >= 100 },
             { id: 21, name: 'Ultimate Photographer', description: 'Unlock all cameras and upgrades.', achieved: false, condition: checkUltimateAchievement },
-            // Add more achievements as desired
         ];
 
         // Variables for checking speed clicker achievement
@@ -704,15 +718,19 @@
         }
 
         // Sound toggle functionality
-        soundToggle.addEventListener('click', () => {
-            soundEnabled = !soundEnabled;
+        function updateSoundToggle() {
+            soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
             if (soundEnabled) {
-                soundToggle.textContent = '🔊';
                 backgroundMusic.play();
             } else {
-                soundToggle.textContent = '🔇';
                 backgroundMusic.pause();
             }
+        }
+
+        soundToggle.addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            updateSoundToggle();
+            saveGame(); // Save the sound setting
         });
 
         // Settings button functionality (reset game)
@@ -758,7 +776,118 @@
             updateXPBar();
             updateAchievements();
             updateProgress(0, true);
+
+            // Clear localStorage
+            localStorage.removeItem('cameraClickerSave');
+            showMessage('Game Reset!');
         }
+
+        // Save and Load Game Functions
+        function saveGame() {
+            const gameState = {
+                frames,
+                framesPerClick,
+                totalClicks,
+                framesPerSecond,
+                progress,
+                progressGoal,
+                clickMultiplier,
+                fpsMultiplier,
+                level,
+                currentXP,
+                xpToNextLevel,
+                cameras: cameras.map(camera => ({ id: camera.id, owned: camera.owned })),
+                upgrades: upgrades.map(upgrade => ({ id: upgrade.id, owned: upgrade.owned })),
+                achievements: achievements.map(achievement => ({ id: achievement.id, achieved: achievement.achieved })),
+                soundEnabled
+            };
+            localStorage.setItem('cameraClickerSave', JSON.stringify(gameState));
+            showMessage('Game Saved!');
+        }
+
+        function loadGame() {
+            const savedGame = localStorage.getItem('cameraClickerSave');
+            if (savedGame) {
+                const gameState = JSON.parse(savedGame);
+                frames = gameState.frames || 0;
+                framesPerClick = gameState.framesPerClick || 1;
+                totalClicks = gameState.totalClicks || 0;
+                framesPerSecond = gameState.framesPerSecond || 0;
+                progress = gameState.progress || 0;
+                progressGoal = gameState.progressGoal || 100;
+                clickMultiplier = gameState.clickMultiplier || 1;
+                fpsMultiplier = gameState.fpsMultiplier || 1;
+                level = gameState.level || 1;
+                currentXP = gameState.currentXP || 0;
+                xpToNextLevel = gameState.xpToNextLevel || 100;
+                soundEnabled = gameState.soundEnabled !== undefined ? gameState.soundEnabled : true;
+
+                // Restore cameras
+                if (gameState.cameras) {
+                    gameState.cameras.forEach(savedCamera => {
+                        const camera = cameras.find(c => c.id === savedCamera.id);
+                        if (camera) {
+                            camera.owned = savedCamera.owned;
+                        }
+                    });
+                }
+
+                // Restore upgrades
+                if (gameState.upgrades) {
+                    gameState.upgrades.forEach(savedUpgrade => {
+                        const upgrade = upgrades.find(u => u.id === savedUpgrade.id);
+                        if (upgrade) {
+                            upgrade.owned = savedUpgrade.owned;
+                            if (upgrade.owned) {
+                                if (upgrade.effect.clickMultiplier) {
+                                    clickMultiplier *= upgrade.effect.clickMultiplier;
+                                }
+                                if (upgrade.effect.fpsMultiplier) {
+                                    fpsMultiplier *= upgrade.effect.fpsMultiplier;
+                                }
+                                if (upgrade.effect.autoClick) {
+                                    startAutoClick();
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Restore achievements
+                if (gameState.achievements) {
+                    gameState.achievements.forEach(savedAchievement => {
+                        const achievement = achievements.find(a => a.id === savedAchievement.id);
+                        if (achievement) {
+                            achievement.achieved = savedAchievement.achieved;
+                        }
+                    });
+                }
+
+                // Update UI elements
+                updateFrameCounter();
+                updateXPBar();
+                updateAchievements();
+                initializeShop();
+                updateSoundToggle();
+                showMessage('Game Loaded!');
+            } else {
+                showMessage('No saved game found.');
+            }
+        }
+
+        // Save and Load Buttons Event Listeners
+        saveButton.addEventListener('click', () => {
+            saveGame();
+        });
+
+        loadButton.addEventListener('click', () => {
+            loadGame();
+        });
+
+        // Auto-save every minute
+        setInterval(() => {
+            saveGame();
+        }, 60000);
 
         // Passive income mechanism
         setInterval(() => {
@@ -846,6 +975,7 @@
         }
 
         // Initialize game
+        loadGame(); // Load saved game if available
         initializeShop();
         updateFrameCounter();
         updateXPBar();
