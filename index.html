@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>  
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -13,126 +13,179 @@
     <!-- Meta tag for responsiveness -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /* Existing CSS styles */
+        /* Basic Reset */
+        * {
+            box-sizing: border-box;
+        }
         body {
             font-family: 'Baloo 2', cursive;
-            background-color: #87CEEB;
+            background-color: #f0f8ff;
             margin: 0;
             padding: 0;
             overflow-x: hidden;
+            cursor: url('https://www.seekpng.com/png/full/226-2267872_piq-mouse-pointer-pixel-art-by-cesarloose-pixel.png'), auto; /* Custom Pixel Cursor */
         }
-        .header, .frame-counter, .motivation, .footer {
-            text-align: center;
-        }
+        /* Header Styles */
         .header {
             padding: 20px;
-            background-color: #228B22;
+            background-color: #2E8B57;
             color: white;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         .header h1 {
             font-size: 2.5rem;
             margin: 0;
         }
+        /* Camera Section */
         .camera-section {
             text-align: center;
             margin-top: 20px;
+            position: relative;
         }
         .camera-button {
             font-size: 100px;
             cursor: pointer;
             animation: pulse 1s infinite;
+            position: relative; /* For particle positioning */
+            overflow: visible; /* Ensure particles are visible */
+            transition: transform 0.2s, border 0.2s;
+            user-select: none;
+        }
+        .camera-button.highlight {
+            border: 5px solid #FF4500;
+            border-radius: 10px;
+            transform: scale(1.1);
         }
         @keyframes pulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.05); }
         }
-        .frame-counter, .level-counter, .xp-counter {
+        /* Counters */
+        .counter {
             margin-top: 10px;
             font-size: 1.2rem;
-            color: #228B22;
+            color: #2E8B57;
             text-shadow: 1px 1px 2px #000;
         }
+        /* Messages */
         .message {
             margin-top: 10px;
             font-size: 1rem;
-            color: #ff0000;
+            color: #FF0000;
             text-align: center;
             min-height: 24px;
+            transition: opacity 0.5s;
+        }
+        .message.hidden {
+            opacity: 0;
         }
         .motivation {
             margin-top: 10px;
             font-size: 1.2rem;
-            color: #ff4500;
+            color: #FFA500;
             text-shadow: 1px 1px 2px #000;
+            transition: opacity 0.5s;
         }
-        .shop-section, .camera-collection {
+        .motivation.hidden {
+            opacity: 0;
+        }
+        /* Shop Sections */
+        .shop-section, .camera-collection, .achievements-collection {
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 20px;
             margin-top: 20px;
         }
-        .shop-item {
+        .shop-item, .achievement-item {
             background: #FFD700;
             border: 2px solid #8B4513;
             border-radius: 10px;
             padding: 15px;
             text-align: center;
-            width: 160px;
+            width: 180px;
             position: relative;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .shop-item .emoji {
+        .shop-item:hover, .achievement-item:hover {
+            transform: scale(1.05);
+        }
+        .shop-item .emoji, .camera-collection .emoji, .achievement-item .emoji {
             font-size: 60px;
             margin-bottom: 10px;
         }
-        .owned-cameras {
-            text-align: center;
-            margin-top: 20px;
-        }
+        /* Owned Cameras */
         .owned-cameras h2 {
-            color: #228B22;
+            color: #2E8B57;
             text-shadow: 1px 1px 2px #000;
+            text-align: center;
+            margin-bottom: 15px;
         }
-        .camera-collection .emoji {
-            font-size: 40px;
-            animation: fadeIn 1s;
+        /* Achievements */
+        .achievement-item {
+            background: #e0e0e0;
+            width: 200px;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        .achievement-earned {
+            background: #FFD700;
         }
+        /* Footer */
         .footer {
             padding: 20px;
-            background: #228B22;
+            background: #2E8B57;
             color: white;
+            text-align: center;
             margin-top: 20px;
+            box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
         }
+        /* Surprise Element */
         .surprise {
-            position: absolute;
+            position: fixed;
             top: 20px;
-            left: 20px;
+            right: 20px;
             font-size: 40px;
             animation: spin 2s infinite;
+            z-index: 1000;
         }
         @keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
-        .sound-toggle {
+        /* Sound and Settings Buttons */
+        .sound-toggle, .settings-button, .save-button, .load-button {
             position: fixed;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1001;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 50%;
+            transition: background-color 0.3s, transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .sound-toggle:hover, .settings-button:hover, .save-button:hover, .load-button:hover {
+            background-color: rgba(255, 255, 255, 1);
+            transform: scale(1.1);
+        }
+        .sound-toggle {
             bottom: 80px;
             right: 20px;
-            font-size: 24px;
-            cursor: pointer;
         }
         .settings-button {
-            position: fixed;
             bottom: 20px;
             right: 20px;
-            font-size: 24px;
-            cursor: pointer;
         }
-        /* Progress bar styles */
+        .save-button {
+            bottom: 140px;
+            right: 20px;
+        }
+        .load-button {
+            bottom: 200px;
+            right: 20px;
+        }
+        /* Progress Bar */
         .progress-container {
             width: 90%;
             max-width: 500px;
@@ -144,64 +197,11 @@
         }
         .progress-bar {
             height: 100%;
-            background-color: #228B22;
+            background-color: #2E8B57;
             width: 0%;
             transition: width 0.5s;
         }
-        /* Tooltip styles for custom appearance */
-        .tooltip-inner {
-            background-color: #333 !important;
-            color: #fff !important;
-            font-size: 0.8rem;
-            padding: 5px 10px;
-            border-radius: 4px;
-        }
-        .tooltip.bs-tooltip-top .arrow::before {
-            border-top-color: #333 !important;
-        }
-        /* Navigation styles */
-        .nav-tabs {
-            flex-wrap: wrap;
-        }
-        .nav-tabs .nav-link.active {
-            background-color: #228B22;
-            color: white;
-        }
-        .nav-tabs .nav-link {
-            color: #228B22;
-        }
-        .content-section {
-            display: none;
-        }
-        .content-section.active {
-            display: block;
-        }
-        /* Camera Shop styles */
-        .camera-shop {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        /* Achievements styles */
-        .achievements-collection {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-        }
-        .achievement-item {
-            background: #e0e0e0;
-            border: 2px solid #8B4513;
-            border-radius: 10px;
-            padding: 10px;
-            text-align: center;
-            width: 200px;
-        }
-        .achievement-earned {
-            background: #FFD700;
-        }
+        /* XP Bar */
         .xp-bar-container {
             width: 90%;
             max-width: 500px;
@@ -213,20 +213,67 @@
         }
         .xp-bar {
             height: 100%;
-            background-color: #ff4500;
+            background-color: #FF8C00;
             width: 0%;
             transition: width 0.5s;
         }
-        /* Save and Load Buttons */
-        .save-button, .load-button {
-            position: fixed;
-            bottom: 140px;
-            right: 20px;
-            font-size: 24px;
-            cursor: pointer;
+        /* Tooltip Styles */
+        .tooltip-inner {
+            background-color: #333 !important;
+            color: #fff !important;
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            border-radius: 4px;
         }
-        .load-button {
-            bottom: 200px;
+        .tooltip.bs-tooltip-top .arrow::before {
+            border-top-color: #333 !important;
+        }
+        /* Navigation Tabs */
+        .nav-tabs {
+            flex-wrap: wrap;
+        }
+        .nav-tabs .nav-link.active {
+            background-color: #2E8B57;
+            color: white;
+        }
+        .nav-tabs .nav-link {
+            color: #2E8B57;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .nav-tabs .nav-link:hover {
+            background-color: #3CB371;
+            color: white;
+        }
+        /* Content Sections */
+        .content-section {
+            display: none;
+            padding: 20px;
+        }
+        .content-section.active {
+            display: block;
+        }
+        /* Leaderboard Table */
+        .leaderboard-section h2 {
+            color: #2E8B57;
+            text-shadow: 1px 1px 2px #000;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .leaderboard-table {
+            width: 90%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .leaderboard-table th, .leaderboard-table td {
+            text-align: center;
+            padding: 10px;
+        }
+        .leaderboard-table th {
+            background-color: #2E8B57;
+            color: white;
+        }
+        .leaderboard-table tr:nth-child(even) {
+            background-color: #f2f2f2;
         }
         /* Main Menu Styles */
         .main-menu {
@@ -235,7 +282,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #87CEEB;
+            background-color: #f0f8ff;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -249,9 +296,10 @@
         }
         .menu-title {
             font-size: 3rem;
-            color: #228B22;
+            color: #2E8B57;
             margin-bottom: 30px;
             animation: slideDown 1s forwards;
+            text-shadow: 2px 2px 4px #000;
         }
         @keyframes slideDown {
             from { transform: translateY(-50px); opacity: 0; }
@@ -265,22 +313,24 @@
         .menu-button {
             padding: 15px 30px;
             font-size: 1.5rem;
-            background-color: #228B22;
+            background-color: #2E8B57;
             color: white;
             border: none;
             border-radius: 10px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             animation: fadeInButtons 1s forwards;
         }
         .menu-button:hover {
-            background-color: #1e7e1e;
+            background-color: #3CB371;
+            transform: scale(1.05);
         }
         @keyframes fadeInButtons {
             from { opacity: 0; }
             to { opacity: 1; }
         }
-        /* Hide Game Content Before Start */
+        /* Game Content Styles */
         .game-content {
             display: none;
             opacity: 0;
@@ -289,30 +339,27 @@
         @keyframes fadeInGame {
             to { opacity: 1; }
         }
-        /* Leaderboard Styles */
-        .leaderboard-section {
-            padding: 20px;
+        /* Particle Animation Styles */
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: rgba(255, 215, 0, 0.8); /* Gold color for particles */
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particleFade 0.6s forwards;
+            z-index: 1000;
         }
-        .leaderboard-section h2 {
-            color: #228B22;
-            text-shadow: 1px 1px 2px #000;
-            margin-bottom: 20px;
-        }
-        .leaderboard-table {
-            width: 90%;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        .leaderboard-table th, .leaderboard-table td {
-            text-align: center;
-            padding: 10px;
-        }
-        .leaderboard-table th {
-            background-color: #228B22;
-            color: white;
-        }
-        .leaderboard-table tr:nth-child(even) {
-            background-color: #f2f2f2;
+
+        @keyframes particleFade {
+            from {
+                opacity: 1;
+                transform: translate(0, 0) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translate(var(--x), var(--y)) scale(0.5);
+            }
         }
         /* Responsive Styles */
         @media (min-width: 576px) {
@@ -322,7 +369,7 @@
             .camera-button {
                 font-size: 120px;
             }
-            .frame-counter, .level-counter, .xp-counter {
+            .counter {
                 font-size: 1.5rem;
             }
             .message {
@@ -332,9 +379,9 @@
                 font-size: 1.5rem;
             }
             .shop-item {
-                width: 180px;
+                width: 200px;
             }
-            .shop-item .emoji {
+            .shop-item .emoji, .achievement-item .emoji {
                 font-size: 80px;
             }
             .camera-collection .emoji {
@@ -355,16 +402,16 @@
                 font-size: 150px;
             }
             .shop-item {
-                width: 200px;
+                width: 220px;
             }
-            .shop-item .emoji {
+            .shop-item .emoji, .achievement-item .emoji {
                 font-size: 100px;
             }
             .camera-collection .emoji {
                 font-size: 50px;
             }
             .achievement-item {
-                width: 220px;
+                width: 240px;
             }
             .leaderboard-table {
                 width: 80%;
@@ -393,7 +440,7 @@
             <div class="modal-body">
               <div class="mb-3">
                 <label for="playerName" class="form-label">Name:</label>
-                <input type="text" class="form-control" id="playerName" required maxlength="20">
+                <input type="text" class="form-control" id="playerName" required maxlength="20" placeholder="Your Name">
               </div>
             </div>
             <div class="modal-footer">
@@ -436,15 +483,15 @@
                 <div id="cameraButton" class="camera-button">📸</div>
             </div>
 
-            <div class="frame-counter" id="frameCounter">
+            <div class="counter" id="frameCounter">
                 Frames: 0
             </div>
 
-            <div class="level-counter" id="levelCounter">
+            <div class="counter" id="levelCounter">
                 Level: 1
             </div>
 
-            <div class="xp-counter">
+            <div class="counter">
                 XP: <span id="currentXP">0</span>/<span id="xpToNextLevel">100</span>
             </div>
 
@@ -456,20 +503,20 @@
                 <div id="progressBar" class="progress-bar"></div>
             </div>
 
-            <div id="message" class="message"></div>
+            <div id="message" class="message hidden"></div>
 
-            <div class="motivation" id="motivationMessage"></div>
+            <div class="motivation hidden" id="motivationMessage"></div>
 
             <!-- Camera Shop -->
-            <div class="camera-shop" id="cameraShop">
-                <!-- Cameras will be dynamically inserted here -->
+            <div class="shop-section" id="cameraShop">
+                <!-- Cameras will be dynamically inserted here using Bootstrap Grid -->
             </div>
         </div>
 
         <!-- Upgrades Section -->
         <div id="upgrades" class="content-section">
             <div class="shop-section" id="upgradeShop">
-                <!-- Upgrades will be dynamically inserted here -->
+                <!-- Upgrades will be dynamically inserted here using Bootstrap Grid -->
             </div>
         </div>
 
@@ -513,13 +560,13 @@
         </div>
 
         <!-- Sound Toggle Button -->
-        <div id="soundToggle" class="sound-toggle">🔊</div>
+        <div id="soundToggle" class="sound-toggle" title="Toggle Sound">🔊</div>
         <!-- Settings Button -->
-        <div id="settingsButton" class="settings-button">⚙️</div>
+        <div id="settingsButton" class="settings-button" title="Settings">⚙️</div>
         <!-- Save Game Button -->
-        <div id="saveButton" class="save-button">💾</div>
+        <div id="saveButton" class="save-button" title="Save Game">💾</div>
         <!-- Load Game Button -->
-        <div id="loadButton" class="load-button">📂</div>
+        <div id="loadButton" class="load-button" title="Load Game">📂</div>
     </div>
 
     <!-- Game Scripts -->
@@ -539,7 +586,9 @@
         let xpToNextLevel = 100;
         let autoClickInterval = null;
         let gameStarted = false;
+        let backgroundMusicPlayed = false; // To prevent multiple plays
 
+        // DOM Elements
         const cameraButton = document.getElementById('cameraButton');
         const frameCounter = document.getElementById('frameCounter');
         const levelCounter = document.getElementById('levelCounter');
@@ -568,77 +617,40 @@
         const nameForm = document.getElementById('nameForm');
         const playerNameInput = document.getElementById('playerName');
 
-        // Initialize Howler.js sounds with Pixabay API
+        // Initialize Howler.js sounds with alternative SFX
         let clickSound;
-
-        function initializeClickSound() {
-            const apiKey = '47347229-fac03b67d039d21db723b844a';
-            const query = 'camera shutter sound';
-            const url = `https://pixabay.com/api/audio/?key=${apiKey}&q=${encodeURIComponent(query)}&per_page=1`;
-
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.hits && data.hits.length > 0) {
-                        const audioURL = data.hits[0].previewURL || data.hits[0].url;
-                        clickSound = new Howl({
-                            src: [audioURL],
-                            html5: true,
-                            volume: 0.5,
-                            onloaderror: function(id, error) {
-                                console.error('Click sound failed to load:', error);
-                            }
-                        });
-                    } else {
-                        console.error('No click sound found in Pixabay API.');
-                        // Fallback to a default sound or mute
-                        clickSound = new Howl({
-                            src: ['https://cdn.pixabay.com/download/audio/2022/03/15/audio_918c653777.mp3?filename=camera-click-112145.mp3'],
-                            html5: true,
-                            volume: 0.5,
-                            onloaderror: function(id, error) {
-                                console.error('Fallback click sound failed to load:', error);
-                            }
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching click sound:', error);
-                    // Fallback to a default sound or mute
-                    clickSound = new Howl({
-                        src: ['https://cdn.pixabay.com/download/audio/2022/03/15/audio_918c653777.mp3?filename=camera-click-112145.mp3'],
-                        html5: true,
-                        volume: 0.5,
-                        onloaderror: function(id, error) {
-                            console.error('Fallback click sound failed to load:', error);
-                        }
-                    });
-                });
-        }
-
-        // Initialize other sounds
         const achievementSound = new Howl({
-            src: ['https://cdn.pixabay.com/download/audio/2022/02/15/audio_8d0b89ae26.mp3?filename=success-fanfare-trumpets-6185.mp3'],
+            src: ['https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg'],
             html5: true,
             volume: 0.7,
+            preload: true,
             onloaderror: function(id, error) {
                 console.error('Achievement sound failed to load:', error);
             }
         });
 
         const backgroundMusic = new Howl({
-            src: ['https://cdn.pixabay.com/download/audio/2022/01/12/audio_0e7069ab1d.mp3?filename=lounge-music-15590.mp3'],
+            src: ['https://www.bensound.com/bensound-music/bensound-jazzyfrenchy.mp3'], // Royalty-free jazz music
             autoplay: false, // Start manually after user interaction
             loop: true,
-            volume: 0.2,
+            volume: 0.3,
             html5: true,
+            preload: true,
             onloaderror: function(id, error) {
                 console.error('Background music failed to load:', error);
             }
         });
 
-        // Call the function to initialize click sound
-        initializeClickSound();
+        // Alternative Click Sound
+        clickSound = new Howl({
+            src: ['https://actions.google.com/sounds/v1/cartoon/pop.ogg'],
+            html5: true,
+            volume: 0.5,
+            preload: true,
+            onloaderror: function(id, error) {
+                console.error('Click sound failed to load:', error);
+            }
+        });
 
         // Anti-Clicker Variables
         const MAX_CLICKS_PER_SECOND = 20; // Threshold for maximum clicks per second
@@ -677,8 +689,9 @@
             initializeGame();
 
             // Play background music after user interaction
-            if (soundEnabled) {
+            if (soundEnabled && !backgroundMusicPlayed) {
                 backgroundMusic.play();
+                backgroundMusicPlayed = true;
             }
 
             // Check if player has a saved game with a name
@@ -723,7 +736,7 @@
             loadLeaderboard(); // Ensure leaderboard is up-to-date
         }
 
-        cameraButton.addEventListener('click', () => {
+        cameraButton.addEventListener('click', (event) => {
             if (!gameStarted) return;
             const now = Date.now();
             clickTimestamps.push(now);
@@ -746,6 +759,9 @@
             triggerSurprise();
             updateProgress(framesGained);
             checkAchievements();
+
+            // Create particle animation at click location
+            createParticle(event.clientX, event.clientY);
         });
 
         // Function to handle cheating detection
@@ -755,6 +771,7 @@
             isCheating = true;
             showMessage('Cheating detected! Your clicks have been limited.');
             cameraButton.style.pointerEvents = 'none'; // Disable clicking
+            cameraButton.classList.add('highlight'); // Highlight camera button
 
             // Penalize the player (e.g., deduct frames)
             const penaltyFrames = Math.floor(frames * 0.1); // Deduct 10% of current frames
@@ -767,6 +784,7 @@
                 clickTimestamps = []; // Reset click timestamps
                 showMessage('You can click again. Play fair!');
                 cameraButton.style.pointerEvents = 'auto';
+                cameraButton.classList.remove('highlight'); // Remove highlight
             }, 10000); // 10,000 milliseconds = 10 seconds
         }
 
@@ -850,7 +868,7 @@
 
         function createShopItem(item, container, type) {
             const shopItem = document.createElement('div');
-            shopItem.className = 'shop-item';
+            shopItem.className = 'shop-item col-12 col-sm-6 col-md-4 col-lg-3';
 
             const emojiDiv = document.createElement('div');
             emojiDiv.className = 'emoji';
@@ -858,13 +876,14 @@
 
             const nameP = document.createElement('p');
             nameP.textContent = item.name;
+            nameP.style.fontWeight = 'bold';
 
             const costP = document.createElement('p');
             costP.innerHTML = `Cost: <span>${item.cost.toLocaleString()}</span> frames`;
 
             const button = document.createElement('button');
             button.id = `buy${type}Button${item.id}`;
-            button.className = type === 'Camera' ? 'btn btn-warning' : 'btn btn-success';
+            button.className = type === 'Camera' ? 'btn btn-warning btn-sm mt-2' : 'btn btn-success btn-sm mt-2';
             button.textContent = item.owned ? 'Owned' : 'Buy';
             button.disabled = item.owned || (item.special && !item.owned);
             button.setAttribute('data-bs-toggle', 'tooltip');
@@ -896,10 +915,12 @@
             });
 
             const upgradeShop = document.getElementById('upgradeShop');
-            upgradeShop.innerHTML = '';
-            upgrades.forEach(upgrade => {
-                createShopItem(upgrade, upgradeShop, 'Upgrade');
-            });
+            if (upgradeShop) {
+                upgradeShop.innerHTML = '';
+                upgrades.forEach(upgrade => {
+                    createShopItem(upgrade, upgradeShop, 'Upgrade');
+                });
+            }
 
             // Re-initialize tooltips after adding new elements
             initializeTooltips();
@@ -913,8 +934,10 @@
                 camera.owned = true;
                 updateFrameCounter();
                 const button = document.getElementById('buyCameraButton' + id);
-                button.disabled = true;
-                button.textContent = 'Owned';
+                if (button) {
+                    button.disabled = true;
+                    button.textContent = 'Owned';
+                }
                 addCameraToCollection(camera);
                 showMessage(`You purchased the ${camera.name}!`);
                 if (soundEnabled) achievementSound.play();
@@ -943,8 +966,10 @@
                 }
                 updateFrameCounter();
                 const button = document.getElementById('buyUpgradeButton' + id);
-                button.disabled = true;
-                button.textContent = 'Owned';
+                if (button) {
+                    button.disabled = true;
+                    button.textContent = 'Owned';
+                }
                 showMessage(`You purchased the ${upgrade.name}!`);
                 if (soundEnabled) achievementSound.play();
                 checkAchievements();
@@ -999,7 +1024,7 @@
         function addCameraToCollection(item) {
             const span = document.createElement('span');
             span.textContent = item.emoji;
-            span.classList.add('emoji');
+            span.classList.add('emoji', 'mx-1');
             cameraCollection.appendChild(span);
         }
 
@@ -1023,8 +1048,9 @@
             ];
             const index = Math.floor(Math.random() * motivationMessages.length);
             motivationMessage.textContent = motivationMessages[index];
+            motivationMessage.classList.remove('hidden');
             setTimeout(() => {
-                motivationMessage.textContent = '';
+                motivationMessage.classList.add('hidden');
             }, 2000);
         }
 
@@ -1043,18 +1069,21 @@
 
         function showMessage(text) {
             messageDiv.textContent = text;
+            messageDiv.classList.remove('hidden');
             setTimeout(() => {
-                messageDiv.textContent = '';
+                messageDiv.classList.add('hidden');
             }, 2000);
         }
 
         // Sound toggle functionality
         function updateSoundToggle() {
             soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
-            if (soundEnabled && gameStarted) {
+            if (soundEnabled && gameStarted && !backgroundMusicPlayed) {
                 backgroundMusic.play();
+                backgroundMusicPlayed = true;
             } else {
                 backgroundMusic.pause();
+                backgroundMusicPlayed = false;
             }
         }
 
@@ -1344,8 +1373,11 @@
                 }
                 const name = document.createElement('h3');
                 name.textContent = achievement.name;
+                name.style.fontSize = '1.2rem';
+                name.style.marginBottom = '5px';
                 const desc = document.createElement('p');
                 desc.textContent = achievement.description;
+                desc.style.fontSize = '0.9rem';
                 div.appendChild(name);
                 div.appendChild(desc);
                 achievementsCollection.appendChild(div);
@@ -1445,6 +1477,31 @@
             // Save the game, which will now include the player name
             saveGame();
         });
+
+        // Particle Animation Function
+        function createParticle(x, y) {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+
+            // Set initial position
+            particle.style.left = `${x}px`;
+            particle.style.top = `${y}px`;
+
+            // Randomize movement direction
+            const angle = Math.random() * 2 * Math.PI;
+            const distance = Math.random() * 50 + 50; // Random distance between 50-100px
+            const xMove = Math.cos(angle) * distance;
+            const yMove = Math.sin(angle) * distance;
+            particle.style.setProperty('--x', `${xMove}px`);
+            particle.style.setProperty('--y', `${yMove}px`);
+
+            document.body.appendChild(particle);
+
+            // Remove particle after animation
+            particle.addEventListener('animationend', () => {
+                particle.remove();
+            });
+        }
     </script>
 </body>
 </html>
